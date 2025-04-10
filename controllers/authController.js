@@ -7,21 +7,39 @@ let users = []; // Mock DB — replace with actual DB calls
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const secret = speakeasy.generateSecret({ name: `AgencyBanking (${email})` });
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    const secret = speakeasy.generateSecret({
+      name: `AgencyBanking (${email})`,
+    });
 
-  const user = {
-    id: Date.now(),
-    name,
-    email,
-    password: hashed,
-    secret: secret.base32,
-  };
-  users.push(user);
+    // Save user
+    const result = await pool.query(
+      "INSERT INTO users (email, password_hash, twofa_secret) VALUES ($1, $2, $3) RETURNING id",
+      [email, hashed, secret.base32]
+    );
 
-  const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+    // Generate QR Code
+    const otpAuthUrl = secret.otpauth_url;
+    const qrImageUrl = await qrcode.toDataURL(otpAuthUrl);
 
-  res.json({ message: "Registered successfully", qrCodeUrl });
+    res.status(201).json({
+      message: "Agent registered successfully",
+      qrImageUrl, // show this to user for scanning
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Registration failed" });
+  }
+
+  // const user = {
+  //   id: Date.now(),
+  //   name,
+  //   email,
+  //   password: hashed,
+  //   secret: secret.base32,
+  // };
+  // users.push(user);
 };
 
 exports.login = async (req, res) => {
