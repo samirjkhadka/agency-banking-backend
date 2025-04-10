@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 const app = express();
 
@@ -13,5 +14,6 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/customer", customerRoutes);
 
 module.exports = app;
