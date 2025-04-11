@@ -8,7 +8,8 @@ exports.getAgentSummary = async (req, res) => {
       `SELECT 
          type,
          COUNT(*) AS count,
-         SUM(amount)::numeric AS total
+         SUM(amount)::numeric AS total,
+         Count(distinct customer_id) as total_customers
        FROM transactions
        WHERE agent_id = $1
        GROUP BY type`,
@@ -17,16 +18,19 @@ exports.getAgentSummary = async (req, res) => {
 
     let totalCount = 0;
     let totalAmount = 0;
+    let totalCustomers = 0;
     const byType = {};
 
     result.rows.forEach(row => {
-      const { type, count, total } = row;
+      const { type, count, total, total_customers } = row;
       byType[type] = {
         count: parseInt(count),
-        total: parseFloat(total)
+        total: parseFloat(total),
+        total_customers: parseInt(total_customers)
       };
       totalCount += parseInt(count);
       totalAmount += parseFloat(total);
+      totalCustomers += parseInt(total_customers);
     });
 
     res.json({
@@ -34,6 +38,7 @@ exports.getAgentSummary = async (req, res) => {
       summary: {
         total_transactions: totalCount,
         total_amount: totalAmount,
+        total_customers: totalCustomers,
         by_type: byType
       }
     });
