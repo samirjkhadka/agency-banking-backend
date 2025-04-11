@@ -6,6 +6,6 @@ const multer = require('multer');
 
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/onboard', verifyJWT, upload.single('photo'), onboardCustomer);
+router.post('/onboard', verifyJWT,  onboardCustomer);
 
 module.exports = router;
