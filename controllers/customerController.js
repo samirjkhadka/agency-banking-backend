@@ -59,3 +59,14 @@ exports.onboardCustomer = async (req, res) => {
 
   res.status(201).json({ message: "Customer onboarded successfully" });
 };
+exports.getCustomers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, full_name, phone FROM customers ORDER BY created_at DESC`
+    );
+    res.json({ customers: result.rows });
+  } catch (err) {
+    console.error("Fetch customers error:", err);
+    res.status(500).json({ message: "Failed to fetch customers" });
+  }
+};
