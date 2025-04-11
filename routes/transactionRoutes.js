@@ -1,8 +1,11 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getTransactions } = require('../controllers/transactionController');
-const verifyJWT = require('../middleware/verifyJWT');
+const {
+  getTransactions,
+  depositCash,
+} = require("../controllers/transactionController");
+const verifyJWT = require("../middleware/verifyJWT");
 
-router.get('/', getTransactions);
+router.get("/deposit", verifyJWT, depositCash);
 
 module.exports = router;
